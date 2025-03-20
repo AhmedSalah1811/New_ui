@@ -30,7 +30,6 @@ class _ChatBotState extends State<ChatBot> {
     setState(() {
       authToken = prefs.getString('user_token');
       attemptCount = prefs.getInt('attempt_count') ?? 0;
-
       if (authToken == null) {
         attemptCount = 0;
         prefs.setInt('attempt_count', 0);
@@ -69,43 +68,23 @@ class _ChatBotState extends State<ChatBot> {
     promptController.clear();
 
     try {
-      print('Sending message with token: $authToken');
-      http.Response response;
-      if (authToken != null) {
-        response = await http.post(
-          Uri.parse('https://aa77-196-129-117-75.ngrok-free.app/home/tryer'),
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $authToken",
-            "ngrok-skip-browser-warning": "true",
-          },
-          body: jsonEncode({"message": userMessage}),
-        );
-      } else {
-        response = await http.post(
-          Uri.parse('https://aa77-196-129-117-75.ngrok-free.app/home/tryer'),
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-          body: jsonEncode({"message": userMessage}),
-        );
-      }
-
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      http.Response response = await http.post(
+        Uri.parse('https://2395-196-129-117-75.ngrok-free.app/home/chat'),
+        headers: {
+          "Content-Type": "application/json",
+          if (authToken != null) "Authorization": "Bearer $authToken",
+          "ngrok-skip-browser-warning": "true",
+        },
+        body: jsonEncode({"message": userMessage}),
+      );
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-        print('Image URL received: ${data['url']}');
+        String? imageUrl = data['imagePath'];
 
-        if (data['url'] != null && data['url'].isNotEmpty) {
+        if (imageUrl != null && imageUrl.isNotEmpty) {
           setState(() {
-            messages.add({
-              "role": "bot",
-              "message": data['url'],
-              "type": "image",
-            });
+            messages.add({"role": "bot", "message": imageUrl, "type": "image"});
           });
         } else {
           setState(() {
@@ -126,7 +105,6 @@ class _ChatBotState extends State<ChatBot> {
         });
       }
     } catch (e) {
-      print('Error: $e');
       setState(() {
         messages.add({
           "role": "bot",
@@ -196,17 +174,12 @@ class _ChatBotState extends State<ChatBot> {
                       color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Image.network(
-                      message["message"]!,
-                      headers: {
-                        "User-Agent": "Mozilla/5.0",
-                      }, // حل لبعض الروابط المحمية
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Text('⚠️ Image can\'t load');
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return const CircularProgressIndicator();
+                    child: FadeInImage.assetNetwork(
+                      placeholder: 'assets/loading.gif',
+                      image: message["message"]!,
+                      fit: BoxFit.cover,
+                      imageErrorBuilder: (context, error, stackTrace) {
+                        return const Text('⚠️ Image can"t load');
                       },
                     ),
                   );
