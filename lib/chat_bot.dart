@@ -38,7 +38,6 @@ class _ChatBotState extends State<ChatBot> {
     });
   }
 
-  // حفظ عدد المحاولات في SharedPreferences
   Future<void> saveAttemptCount() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setInt('attempt_count', attemptCount);
@@ -47,7 +46,6 @@ class _ChatBotState extends State<ChatBot> {
   Future<void> sendMessage() async {
     if (promptController.text.isEmpty) return;
 
-    //
     if (authToken == null && attemptCount >= 3) {
       setState(() {
         loginPromptMessage = "You have reached 3 prompts. Want more, please ";
@@ -61,8 +59,8 @@ class _ChatBotState extends State<ChatBot> {
       loginPromptMessage = null;
 
       if (authToken == null) {
-        attemptCount++; // زيادة المحاولات إذا لم يكن مسجلًا
-        saveAttemptCount(); // حفظ العدد في SharedPreferences
+        attemptCount++;
+        saveAttemptCount();
       }
     });
 
@@ -74,18 +72,22 @@ class _ChatBotState extends State<ChatBot> {
       http.Response response;
       if (authToken != null) {
         response = await http.post(
-          Uri.parse('https://aa77-196-129-117-75.ngrok-free.app'),
+          Uri.parse('https://aa77-196-129-117-75.ngrok-free.app/home/tryer'),
           headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer $authToken",
+            "ngrok-skip-browser-warning": "true", // ✅ إضافة هذا الهيدر
           },
           body: jsonEncode({"message": userMessage}),
         );
       } else {
         print('Token is null');
         response = await http.post(
-          Uri.parse('https://aa77-196-129-117-75.ngrok-free.app'),
-          headers: {"Content-Type": "application/json"},
+          Uri.parse('https://aa77-196-129-117-75.ngrok-free.app/home/tryer'),
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true", // ✅ إضافة هذا الهيدر
+          },
           body: jsonEncode({"message": userMessage}),
         );
       }
@@ -95,6 +97,7 @@ class _ChatBotState extends State<ChatBot> {
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
+        print('Image URL received: ${data['imagePath']}');
         if (data['imagePath'] != null && data['imagePath'].isNotEmpty) {
           setState(() {
             messages.add({"role": "bot", "message": data['imagePath']});
@@ -103,7 +106,7 @@ class _ChatBotState extends State<ChatBot> {
           setState(() {
             messages.add({
               "role": "bot",
-              "message": "Error: No image path received.",
+              "message": "⚠️ Error: No image path received.",
             });
           });
         }
@@ -112,14 +115,14 @@ class _ChatBotState extends State<ChatBot> {
           messages.add({
             "role": "bot",
             "message":
-                "Error: Unable to fetch image. Status code: ${response.statusCode}",
+                "⚠️ Error: Unable to fetch image. Status code: ${response.statusCode}",
           });
         });
       }
     } catch (e) {
       print('Error: $e');
       setState(() {
-        messages.add({"role": "bot", "message": "Error: ${e.toString()}"});
+        messages.add({"role": "bot", "message": "⚠️ Error: ${e.toString()}"});
       });
     } finally {
       setState(() {
@@ -186,7 +189,7 @@ class _ChatBotState extends State<ChatBot> {
                     child: Image.network(
                       message["message"]!,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Text('Failed to load image');
+                        return const Text('⚠️ Failed to load image');
                       },
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
@@ -220,7 +223,6 @@ class _ChatBotState extends State<ChatBot> {
                     controller: promptController,
                     decoration: InputDecoration(
                       hintText: "Enter your prompt here...",
-                      hintStyle: const TextStyle(color: Colors.grey),
                       filled: true,
                       fillColor: Colors.black12,
                       border: OutlineInputBorder(
