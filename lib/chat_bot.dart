@@ -53,8 +53,10 @@ class _ChatBotState extends State<ChatBot> {
       return;
     }
 
+    String userMessage = promptController.text;
+
     setState(() {
-      messages.add({"role": "user", "message": promptController.text});
+      messages.add({"role": "user", "message": userMessage});
       isLoading = true;
       loginPromptMessage = null;
 
@@ -64,7 +66,6 @@ class _ChatBotState extends State<ChatBot> {
       }
     });
 
-    String userMessage = promptController.text;
     promptController.clear();
 
     try {
@@ -76,17 +77,16 @@ class _ChatBotState extends State<ChatBot> {
           headers: {
             "Content-Type": "application/json",
             "Authorization": "Bearer $authToken",
-            "ngrok-skip-browser-warning": "true", // ✅ إضافة هذا الهيدر
+            "ngrok-skip-browser-warning": "true",
           },
           body: jsonEncode({"message": userMessage}),
         );
       } else {
-        print('Token is null');
         response = await http.post(
           Uri.parse('https://aa77-196-129-117-75.ngrok-free.app/home/tryer'),
           headers: {
             "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true", // ✅ إضافة هذا الهيدر
+            "ngrok-skip-browser-warning": "true",
           },
           body: jsonEncode({"message": userMessage}),
         );
@@ -97,16 +97,22 @@ class _ChatBotState extends State<ChatBot> {
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-        print('Image URL received: ${data['imagePath']}');
-        if (data['imagePath'] != null && data['imagePath'].isNotEmpty) {
+        print('Image URL received: ${data['url']}');
+
+        if (data['url'] != null && data['url'].isNotEmpty) {
           setState(() {
-            messages.add({"role": "bot", "message": data['imagePath']});
+            messages.add({
+              "role": "bot",
+              "message": data['url'],
+              "type": "image",
+            });
           });
         } else {
           setState(() {
             messages.add({
               "role": "bot",
-              "message": "⚠️ Error: No image path received.",
+              "message": "⚠️ Image exists but can't be loaded",
+              "type": "text",
             });
           });
         }
@@ -114,15 +120,19 @@ class _ChatBotState extends State<ChatBot> {
         setState(() {
           messages.add({
             "role": "bot",
-            "message":
-                "⚠️ Error: Unable to fetch image. Status code: ${response.statusCode}",
+            "message": "⚠️ Error: Unable to fetch image",
+            "type": "text",
           });
         });
       }
     } catch (e) {
       print('Error: $e');
       setState(() {
-        messages.add({"role": "bot", "message": "⚠️ Error: ${e.toString()}"});
+        messages.add({
+          "role": "bot",
+          "message": "⚠️ Error: ${e.toString()}",
+          "type": "text",
+        });
       });
     } finally {
       setState(() {
@@ -178,7 +188,7 @@ class _ChatBotState extends State<ChatBot> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 var message = messages[index];
-                if (message["role"] == "bot") {
+                if (message["role"] == "bot" && message["type"] == "image") {
                   return Container(
                     margin: const EdgeInsets.symmetric(vertical: 5),
                     padding: const EdgeInsets.all(10),
@@ -188,8 +198,11 @@ class _ChatBotState extends State<ChatBot> {
                     ),
                     child: Image.network(
                       message["message"]!,
+                      headers: {
+                        "User-Agent": "Mozilla/5.0",
+                      }, // حل لبعض الروابط المحمية
                       errorBuilder: (context, error, stackTrace) {
-                        return const Text('⚠️ Failed to load image');
+                        return const Text('⚠️ Image can\'t load');
                       },
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
@@ -202,12 +215,21 @@ class _ChatBotState extends State<ChatBot> {
                   margin: const EdgeInsets.symmetric(vertical: 5),
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color:
+                        message["role"] == "user"
+                            ? Colors.blue
+                            : Colors.grey[300],
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
                     message["message"]!,
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(
+                      color:
+                          message["role"] == "user"
+                              ? Colors.white
+                              : Colors.black,
+                      fontSize: 16,
+                    ),
                   ),
                 );
               },
