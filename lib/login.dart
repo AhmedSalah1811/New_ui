@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ui_evo_2/home_page.dart';
-
+import 'home_page.dart';
 import 'sign_up.dart';
 import 'text_feild.dart';
 
@@ -29,8 +28,12 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  Future<void> saveToken(String token) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_token', token);
+  }
+
   Future<void> login() async {
-    WidgetsFlutterBinding.ensureInitialized(); // تأكد من تهيئة الـ Plugins
     const String url = 'https://ui-evolution.onrender.com/auth/logIn';
 
     try {
@@ -54,9 +57,7 @@ class _LoginPageState extends State<LoginPage> {
         print("📩 Decoded Response: $responseData");
 
         if (responseData['token'] != null) {
-          final SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('user_token', responseData['token']);
-
+          await saveToken(responseData['token']);
           print("✅ Token saved: ${responseData['token']}");
 
           if (mounted) {

@@ -102,7 +102,7 @@ class _SubscriptionState extends State<Subscription> {
         ),
       ),
       bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
+        color: Colors.black87,
         shape: const CircularNotchedRectangle(),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),

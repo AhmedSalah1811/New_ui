@@ -17,15 +17,12 @@ Widget buildNavButton(
     child: Container(
       width: 40,
       height: 40,
-      decoration: BoxDecoration(
-        color: isSelected ? Colors.blue.withOpacity(0.2) : Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: const BoxDecoration(color: Colors.transparent),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Image.asset(
           imagePath,
-          color: isSelected ? Colors.blue : null,
+          color: isSelected ? Colors.blue : Colors.white,
           fit: BoxFit.contain,
         ),
       ),
