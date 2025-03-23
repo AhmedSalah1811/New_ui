@@ -160,62 +160,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        shape: const CircularNotchedRectangle(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // زر الهوم
-              IconButton(
-                icon: Image.asset("assets/images/home.png"),
-                onPressed: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  final String? token = prefs.getString('user_token');
-                  if (token != null) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
-                    );
-                  } else {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                  }
-                },
-              ),
-
-              buildNavButton(
-                context,
-                "assets/images/about.png",
-                const AboutPage(),
-                widget.runtimeType,
-              ),
-              buildNavButton(
-                context,
-                "assets/images/subscrption.png",
-                const Subscription(),
-                widget.runtimeType,
-              ),
-              buildNavButton(
-                context,
-                "assets/images/contact.png",
-                const ContactPage(),
-                widget.runtimeType,
-              ),
-              buildNavButton(
-                context,
-                "assets/images/profile.png",
-                const ProfilePage(),
-                widget.runtimeType,
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

@@ -7,6 +7,7 @@ import 'chat_bot.dart';
 import 'contact.dart';
 import 'login.dart';
 import 'subscription.dart';
+import 'profile.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -46,6 +47,25 @@ class _Home_pageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar:
+          userToken != null
+              ? AppBar(
+                title: const Text("Home"),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.person),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              )
+              : null,
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -110,7 +130,7 @@ class _Home_pageState extends State<HomePage> {
                               TextSpan(
                                 text: 'Login',
                                 style: const TextStyle(
-                                  fontSize: 13,
+                                  fontSize: 15,
                                   color: Colors.blue,
                                   fontWeight: FontWeight.bold,
                                   decoration: TextDecoration.underline,
@@ -130,40 +150,29 @@ class _Home_pageState extends State<HomePage> {
                             ],
                           ),
                         ),
-                        const SizedBox(height: 70),
-                        const Center(
-                          child: Text(
-                            'Why Choose UI Evolution?',
-                            style: TextStyle(fontSize: 22, color: Colors.black),
+                        const SizedBox(height: 100),
+                        SizedBox(
+                          height: 200,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: const [
+                              FeaturesBox(
+                                title: 'Speed',
+                                description:
+                                    'Generate complete UI in seconds not hours. Streamline your development.',
+                              ),
+                              FeaturesBox(
+                                title: 'Customization',
+                                description:
+                                    'Tailor every aspect of your UI to match your brand and requirements perfectly.',
+                              ),
+                              FeaturesBox(
+                                title: 'Professional',
+                                description:
+                                    'Get production-ready code that follows best practices and modern standards.',
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 40),
-                        GridView.count(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 1,
-                          mainAxisSpacing: 1,
-                          children: const [
-                            Features(
-                              title: 'Speed',
-                              features: [
-                                'Generate complete UI in seconds not hours. Streamline your development ',
-                              ],
-                            ),
-                            Features(
-                              title: 'Customization',
-                              features: [
-                                'Tailor every aspect of your UI to match your brand and requirements perfectly',
-                              ],
-                            ),
-                            Features(
-                              title: 'Professional',
-                              features: [
-                                'Get production-ready code that follows best practices and modern standards',
-                              ],
-                            ),
-                          ],
                         ),
                       ],
                     ],
@@ -206,15 +215,59 @@ class _Home_pageState extends State<HomePage> {
                 const ContactPage(),
                 widget.runtimeType,
               ),
-              buildNavButton(
-                context,
-                "assets/images/login.png",
-                const LoginPage(),
-                widget.runtimeType,
-              ),
+              if (userToken == null)
+                buildNavButton(
+                  context,
+                  "assets/images/login.png",
+                  const LoginPage(),
+                  widget.runtimeType,
+                ),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class FeaturesBox extends StatelessWidget {
+  final String title;
+  final String description;
+
+  const FeaturesBox({
+    super.key,
+    required this.title,
+    required this.description,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 200,
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blueAccent,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            description,
+            style: const TextStyle(fontSize: 14, color: Colors.white),
+          ),
+        ],
       ),
     );
   }

@@ -1,85 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'build_nav_button.dart';
-import 'contact.dart';
 import 'home_page.dart';
-import 'profile.dart';
+import 'login.dart';
+
 import 'subscription.dart';
+import 'contact.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AboutPage extends StatefulWidget {
-  const AboutPage({super.key});
+  const AboutPage({Key? key}) : super(key: key);
 
   @override
   _AboutPageState createState() => _AboutPageState();
 }
 
 class _AboutPageState extends State<AboutPage> {
+  String? userToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUserToken();
+  }
+
+  Future<void> _checkUserToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userToken = prefs.getString('user_token');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.all(10),
-          decoration: const BoxDecoration(color: Colors.white),
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.center,
-                margin: const EdgeInsets.all(45),
-                child: const Text(
-                  'Feautres',
-                  style: TextStyle(color: Colors.blue, fontSize: 26),
-                ),
-              ),
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(), //
-                crossAxisCount: 2,
-                crossAxisSpacing: 5,
-                mainAxisSpacing: 5,
-                children: const [
-                  Features(
-                    title: 'Component Library',
-                    features: [
-                      'Acess a vast library of pru-built components ready to use in your project ',
-                    ],
-                  ),
-                  Features(
-                    title: 'Responsive Design',
-                    features: [
-                      'All generated UIs are fully responsive and work prfectly on any device',
-                    ],
-                  ),
-                  Features(
-                    title: 'Theme Customization',
-                    features: [
-                      'Easily customize colors,fonts and styles to match your brand identity',
-                    ],
-                  ),
-                  Features(
-                    title: 'Export Options',
-                    features: [
-                      'Export your UI in multiple formats inculding HTML,React and Angular',
-                    ],
-                  ),
-                  Features(
-                    title: 'Real-time Preview',
-                    features: [
-                      'See changes instantly as you customize your UI Components',
-                    ],
-                  ),
-                  Features(
-                    title: 'Code Generation',
-                    features: [
-                      'Get clean,optimzed code that follows best practices and modren standers',
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
+      backgroundColor: Colors.white,
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         shape: const CircularNotchedRectangle(),
@@ -88,26 +43,12 @@ class _AboutPageState extends State<AboutPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // زر الهوم
-              IconButton(
-                icon: Image.asset("assets/images/home.png"),
-                onPressed: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  final String? token = prefs.getString('user_token');
-                  if (token != null) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                  } else {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                  }
-                },
+              buildNavButton(
+                context,
+                "assets/images/home.png",
+                const HomePage(),
+                widget.runtimeType,
               ),
-
               buildNavButton(
                 context,
                 "assets/images/about.png",
@@ -126,66 +67,120 @@ class _AboutPageState extends State<AboutPage> {
                 const ContactPage(),
                 widget.runtimeType,
               ),
-              buildNavButton(
-                context,
-                "assets/images/profile.png",
-                const ProfilePage(),
-                widget.runtimeType,
-              ),
+              if (userToken == null)
+                buildNavButton(
+                  context,
+                  "assets/images/login.png",
+                  const LoginPage(),
+                  widget.runtimeType,
+                ),
             ],
           ),
         ),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20),
+          const Text(
+            'Features',
+            style: TextStyle(
+              color: Colors.blue,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Image.asset(
+              'assets/images/logo.png',
+              height: 280,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 250,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    FeaturesBox(
+                      title: 'Component Library',
+                      description:
+                          'Access a vast library of pre-built components ready to use in your project.',
+                    ),
+                    FeaturesBox(
+                      title: 'Responsive Design',
+                      description:
+                          'All generated UIs are fully responsive and work perfectly on any device.',
+                    ),
+                    FeaturesBox(
+                      title: 'Theme Customization',
+                      description:
+                          'Customize colors, fonts, and styles to match your brand identity.',
+                    ),
+                    FeaturesBox(
+                      title: 'Export Options',
+                      description:
+                          'Export your UI in multiple formats including Flutter, React, and HTML.',
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class Features extends StatelessWidget {
+class FeaturesBox extends StatelessWidget {
   final String title;
-  final List<String> features;
+  final String description;
 
-  const Features({Key? key, required this.title, required this.features})
+  const FeaturesBox({Key? key, required this.title, required this.description})
     : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      alignment: Alignment.topLeft,
-      height: 220,
-      width: 160,
+      width: 180,
+      height: 250,
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.black12,
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 5,
+            spreadRadius: 2,
+          ),
+        ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(color: Colors.black, fontSize: 18),
-          ),
-          const SizedBox(height: 15),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                    features
-                        .map(
-                          (feature) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: Text(
-                              ' $feature',
-                              style: const TextStyle(color: Colors.black87),
-                            ),
-                          ),
-                        )
-                        .toList(),
-              ),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            description,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
         ],
       ),

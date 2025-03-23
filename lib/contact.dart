@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'about.dart';
 import 'build_nav_button.dart';
 import 'home_page.dart';
+import 'login.dart';
 import 'profile.dart';
 import 'subscription.dart';
 import 'text_feild.dart';
@@ -21,6 +22,20 @@ class _ContactState extends State<ContactPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
+  String? userToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUserToken();
+  }
+
+  Future<void> _checkUserToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userToken = prefs.getString('user_token');
+    });
+  }
 
   @override
   void dispose() {
@@ -30,7 +45,6 @@ class _ContactState extends State<ContactPage> {
     super.dispose();
   }
 
-  // دالة إرسال الفيدباك إلى السيرفر
   void sendFeedback() async {
     String name = nameController.text.trim();
     String email = emailController.text.trim();
@@ -67,6 +81,25 @@ class _ContactState extends State<ContactPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar:
+          userToken != null
+              ? AppBar(
+                title: const Text("Contact Us"),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.person),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              )
+              : null,
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(20),
@@ -91,7 +124,6 @@ class _ContactState extends State<ContactPage> {
               ),
               const SizedBox(height: 50),
 
-              // Name Field
               const Text(
                 "Name",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -104,7 +136,6 @@ class _ContactState extends State<ContactPage> {
 
               const SizedBox(height: 20),
 
-              // Email Field
               const Text(
                 "Email",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -117,7 +148,6 @@ class _ContactState extends State<ContactPage> {
 
               const SizedBox(height: 20),
 
-              // Message Field
               const Text(
                 "Message",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -133,7 +163,6 @@ class _ContactState extends State<ContactPage> {
 
               const SizedBox(height: 30),
 
-              // Send Button
               Center(
                 child: ElevatedButton(
                   onPressed: sendFeedback,
@@ -165,26 +194,12 @@ class _ContactState extends State<ContactPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // زر الهوم
-              IconButton(
-                icon: Image.asset("assets/images/home.png"),
-                onPressed: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  final String? token = prefs.getString('user_token');
-                  if (token != null) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                  } else {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                  }
-                },
+              buildNavButton(
+                context,
+                "assets/images/home.png",
+                const HomePage(),
+                widget.runtimeType,
               ),
-
               buildNavButton(
                 context,
                 "assets/images/about.png",
@@ -203,12 +218,13 @@ class _ContactState extends State<ContactPage> {
                 const ContactPage(),
                 widget.runtimeType,
               ),
-              buildNavButton(
-                context,
-                "assets/images/profile.png",
-                const ProfilePage(),
-                widget.runtimeType,
-              ),
+              if (userToken == null)
+                buildNavButton(
+                  context,
+                  "assets/images/login.png",
+                  const LoginPage(),
+                  widget.runtimeType,
+                ),
             ],
           ),
         ),

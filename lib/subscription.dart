@@ -6,16 +6,32 @@ import 'about.dart';
 import 'build_nav_button.dart';
 import 'contact.dart';
 import 'home_page.dart';
+import 'login.dart';
 import 'profile.dart';
 
 class Subscription extends StatefulWidget {
   const Subscription({super.key});
 
   @override
-  _AboutSubscriptionState createState() => _AboutSubscriptionState();
+  _SubscriptionState createState() => _SubscriptionState();
 }
 
-class _AboutSubscriptionState extends State<Subscription> {
+class _SubscriptionState extends State<Subscription> {
+  String? userToken;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUserToken();
+  }
+
+  Future<void> _checkUserToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userToken = prefs.getString('user_token');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,6 +41,22 @@ class _AboutSubscriptionState extends State<Subscription> {
           'Simple, Transparent Pricing',
           style: TextStyle(color: Colors.blue, fontSize: 22),
         ),
+        actions:
+            userToken != null
+                ? [
+                  IconButton(
+                    icon: const Icon(Icons.person, color: Colors.blue),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(),
+                        ),
+                      );
+                    },
+                  ),
+                ]
+                : null,
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -77,23 +109,11 @@ class _AboutSubscriptionState extends State<Subscription> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              IconButton(
-                icon: Image.asset("assets/images/home.png"),
-                onPressed: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  final String? token = prefs.getString('user_token');
-                  if (token != null) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                  } else {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomePage()),
-                    );
-                  }
-                },
+              buildNavButton(
+                context,
+                "assets/images/home.png",
+                const HomePage(),
+                widget.runtimeType,
               ),
               buildNavButton(
                 context,
@@ -113,12 +133,13 @@ class _AboutSubscriptionState extends State<Subscription> {
                 const ContactPage(),
                 widget.runtimeType,
               ),
-              buildNavButton(
-                context,
-                "assets/images/profile.png",
-                const ProfilePage(),
-                widget.runtimeType,
-              ),
+              if (userToken == null)
+                buildNavButton(
+                  context,
+                  "assets/images/login.png",
+                  const LoginPage(),
+                  widget.runtimeType,
+                ),
             ],
           ),
         ),

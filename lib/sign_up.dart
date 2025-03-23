@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ui_evo_2/login.dart';
 import 'dart:convert';
 
 import 'home_page.dart';
@@ -56,7 +57,7 @@ class _SignupState extends State<SignUp> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(builder: (context) => LoginPage()),
       );
     } else {
       Map<String, dynamic> responseData = jsonDecode(response.body);

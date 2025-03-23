@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ui_evo_2/about.dart';
+import 'package:ui_evo_2/home_page.dart';
 
-import 'home_page.dart';
 import 'sign_up.dart';
 import 'text_feild.dart';
 
@@ -32,35 +30,54 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> login() async {
+    WidgetsFlutterBinding.ensureInitialized(); // تأكد من تهيئة الـ Plugins
     const String url = 'https://ui-evolution.onrender.com/auth/logIn';
+
     try {
+      print("🔹 Attempting login with:");
+      print("Email: ${emailController.text.trim()}");
+      print("Password: ${passwordController.text.trim()}");
+
       final response = await http.post(
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'email': emailController.text,
-          'password': passwordController.text,
+          'email': emailController.text.trim(),
+          'password': passwordController.text.trim(),
         }),
       );
 
-      final responseData = jsonDecode(response.body);
-      final String? token = responseData['token'];
+      print("📩 Raw Response: ${response.body}");
 
-      if (response.statusCode == 200 && token != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user_token', token);
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        print("📩 Decoded Response: $responseData");
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => AboutPage()),
-        );
+        if (responseData['token'] != null) {
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('user_token', responseData['token']);
+
+          print("✅ Token saved: ${responseData['token']}");
+
+          if (mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          }
+        } else {
+          setState(() {
+            loginError = responseData['message'] ?? 'Login failed!';
+          });
+        }
       } else {
+        print("❌ Server Error: ${response.statusCode}");
         setState(() {
-          loginError = responseData['message'] ?? 'Login failed';
+          loginError = "Login failed. Please check your credentials.";
         });
       }
     } catch (e) {
-      print('Login Error: $e');
+      print('❌ Login Error: $e');
       setState(() {
         loginError = 'An error occurred. Please try again later.';
       });
@@ -91,7 +108,6 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 1),
               Image.asset(
                 'assets/images/logo.png',
                 height: 250,
