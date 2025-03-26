@@ -51,7 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
         );
         break;
       case 4:
-        // ProfilePage بيكون في المركز 4, فما نحتاج نعمل أي حاجة هنا
+
         break;
     }
   }

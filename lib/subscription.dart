@@ -41,22 +41,7 @@ class _SubscriptionState extends State<Subscription> {
           'Simple, Transparent Pricing',
           style: TextStyle(color: Colors.blue, fontSize: 22),
         ),
-        actions:
-            userToken != null
-                ? [
-                  IconButton(
-                    icon: const Icon(Icons.person, color: Colors.blue),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfilePage(),
-                        ),
-                      );
-                    },
-                  ),
-                ]
-                : null,
+
       ),
       body: SingleChildScrollView(
         child: Container(
