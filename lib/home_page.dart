@@ -49,10 +49,10 @@ class _Home_pageState extends State<HomePage> {
     return Scaffold(
       appBar:
           userToken != null
-              ? AppBar(
-                title: const Text("Home"),
+              ? AppBar(backgroundColor: Colors.black87,centerTitle: true,
+                title: const Text("Home",style: TextStyle(color: Colors.white),),
                 actions: [
-                  IconButton(
+                  IconButton(color: Colors.white,
                     icon: const Icon(Icons.person),
                     onPressed: () {
                       Navigator.push(

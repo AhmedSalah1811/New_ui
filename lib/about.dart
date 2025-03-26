@@ -4,6 +4,7 @@ import 'build_nav_button.dart';
 import 'home_page.dart';
 import 'login.dart';
 
+import 'profile.dart';
 import 'subscription.dart';
 import 'contact.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,7 +34,29 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(appBar: AppBar(backgroundColor: Colors.black87,
+      centerTitle: true,
+      title: const Text(
+        'Features',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+      ),actions: [
+        IconButton(color: Colors.white,
+          icon: const Icon(Icons.person),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProfilePage(),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
       backgroundColor: Colors.white,
       bottomNavigationBar: BottomAppBar(
         color: Colors.black87,
@@ -78,64 +101,59 @@ class _AboutPageState extends State<AboutPage> {
           ),
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 20),
-          const Text(
-            'Features',
-            style: TextStyle(
-              color: Colors.blue,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 20),
+
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Image.asset(
+                'assets/images/logo.png',
+                height: 280,
+                fit: BoxFit.contain,
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Image.asset(
-              'assets/images/logo.png',
-              height: 280,
-              fit: BoxFit.contain,
-            ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 250,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    FeaturesBox(
-                      title: 'Component Library',
-                      description:
-                          'Access a vast library of pre-built components ready to use in your project.',
-                    ),
-                    FeaturesBox(
-                      title: 'Responsive Design',
-                      description:
-                          'All generated UIs are fully responsive and work perfectly on any device.',
-                    ),
-                    FeaturesBox(
-                      title: 'Theme Customization',
-                      description:
-                          'Customize colors, fonts, and styles to match your brand identity.',
-                    ),
-                    FeaturesBox(
-                      title: 'Export Options',
-                      description:
-                          'Export your UI in multiple formats including Flutter, React, and HTML.',
-                    ),
-                  ],
+            const SizedBox(height: 20),
+            SizedBox(
+              height: 250,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      FeaturesBox(
+                        title: 'Component Library',
+                        description:
+                            'Access a vast library of pre-built components ready to use in your project.',
+                      ),
+                      FeaturesBox(
+                        title: 'Responsive Design',
+                        description:
+                            'All generated UIs are fully responsive and work perfectly on any device.',
+                      ),
+                      FeaturesBox(
+                        title: 'Theme Customization',
+                        description:
+                            'Customize colors, fonts, and styles to match your brand identity.',
+                      ),
+                      FeaturesBox(
+                        title: 'Export Options',
+                        description:
+                            'Export your UI in multiple formats including Flutter, React, and HTML.',
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

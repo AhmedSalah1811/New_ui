@@ -35,12 +35,24 @@ class _SubscriptionState extends State<Subscription> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
+      appBar: AppBar(centerTitle: true,
+        backgroundColor: Colors.black87,
         title: const Text(
-          'Simple, Transparent Pricing',
-          style: TextStyle(color: Colors.blue, fontSize: 22),
+          'Pricing',
+          style: TextStyle(color: Colors.white, fontSize: 22),
+        ),actions: [
+        IconButton(color: Colors.white,
+          icon: const Icon(Icons.person),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ProfilePage(),
+              ),
+            );
+          },
         ),
+      ],
 
       ),
       body: SingleChildScrollView(

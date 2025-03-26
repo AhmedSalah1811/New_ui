@@ -83,10 +83,10 @@ class _ContactState extends State<ContactPage> {
     return Scaffold(
       appBar:
           userToken != null
-              ? AppBar(
-                title: const Text("Contact Us"),
+              ? AppBar(backgroundColor: Colors.black87,centerTitle: true,
+                title: const Text("Contact Us",style: TextStyle(color: Colors.white),),
                 actions: [
-                  IconButton(
+                  IconButton(color: Colors.white,
                     icon: const Icon(Icons.person),
                     onPressed: () {
                       Navigator.push(
