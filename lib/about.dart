@@ -34,7 +34,7 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(backgroundColor: Colors.black87,
+    return Scaffold(appBar: AppBar(backgroundColor: Colors.black87,iconTheme: IconThemeData.fallback().copyWith(color: Colors.black87),
       centerTitle: true,
       title: const Text(
         'Features',

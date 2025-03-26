@@ -35,7 +35,7 @@ class _SubscriptionState extends State<Subscription> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true,
+      appBar: AppBar(centerTitle: true,iconTheme: IconThemeData.fallback().copyWith(color: Colors.black87),
         backgroundColor: Colors.black87,
         title: const Text(
           'Pricing',
