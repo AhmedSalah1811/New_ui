@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-
 import 'about.dart';
 import 'build_nav_button.dart';
 import 'home_page.dart';
@@ -10,6 +9,7 @@ import 'login.dart';
 import 'profile.dart';
 import 'subscription.dart';
 import 'text_feild.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class ContactPage extends StatefulWidget {
   const ContactPage({super.key});
@@ -23,11 +23,18 @@ class _ContactState extends State<ContactPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController messageController = TextEditingController();
   String? userToken;
+  late WebViewController webViewController;
 
   @override
   void initState() {
     super.initState();
     _checkUserToken();
+
+    webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setUserAgent(
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+      ..loadRequest(Uri.parse("http://192.168.1.6:5173/"));
   }
 
   Future<void> _checkUserToken() async {
@@ -82,153 +89,127 @@ class _ContactState extends State<ContactPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:
-          userToken != null
-              ? AppBar(backgroundColor: Colors.black87,centerTitle: true,iconTheme: IconThemeData.fallback().copyWith(color: Colors.black87),
-                title: const Text("Contact Us",style: TextStyle(color: Colors.white),),
-                actions: [
-                  IconButton(color: Colors.white,
-                    icon: const Icon(Icons.person),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfilePage(),
+      userToken != null
+          ? AppBar(backgroundColor: Colors.black87,
+        automaticallyImplyLeading: false,
+        centerTitle: true,iconTheme: IconThemeData.fallback().copyWith(color: Colors.black87),
+        title: const Text("Contact Us",style: TextStyle(color: Colors.white),),
+        actions: [
+          IconButton(color: Colors.white,
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfilePage(),
+                ),
+              );
+            },
+          ),
+        ],
+      )
+          : null,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: WebViewWidget(controller: webViewController),
+          ),
+          Positioned.fill(
+            child: Container(
+
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 60),
+                    const Center(
+                      child: Text(
+                        'Get in Touch',
+                        style: TextStyle(fontSize: 30, color: Colors.blue),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Center(
+                      child: Text(
+                        'Have a question? We would love to hear from you.\nSend us a message and we will respond soon.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.white60),
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                    const Text("Name", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
+                    const SizedBox(height: 5),
+                    Text_Field(hintText: 'Enter your name', controller: nameController, borderColor:Colors.white70 ,),
+                    const SizedBox(height: 20),
+                    const Text("Email", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
+                    const SizedBox(height: 5),
+                    Text_Field(hintText: 'Enter your email', controller: emailController, borderColor:Colors.white70 ,),
+                    const SizedBox(height: 20),
+                    const Text("Message", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
+                    const SizedBox(height: 5),
+                    SizedBox(height: 120, child: Text_Field(hintText: 'Enter your message', controller: messageController, borderColor:Colors.white70 ,)),
+                    const SizedBox(height: 30),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: sendFeedback,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                         ),
-                      );
-                    },
-                  ),
-                ],
-              )
-              : null,
-      body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: const BoxDecoration(color: Colors.white),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 60),
-              const Center(
-                child: Text(
-                  'Get in Touch',
-                  style: TextStyle(fontSize: 30, color: Colors.black),
-                ),
-              ),
-              const SizedBox(height: 10),
-              const Center(
-                child: Text(
-                  'Have a question? We would love to hear from you.\nSend us a message and we will respond soon.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.black54),
-                ),
-              ),
-              const SizedBox(height: 50),
-
-              const Text(
-                "Name",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 5),
-              Text_Field(
-                hintText: 'Enter your name',
-                controller: nameController,
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                "Email",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 5),
-              Text_Field(
-                hintText: 'Enter your email',
-                controller: emailController,
-              ),
-
-              const SizedBox(height: 20),
-
-              const Text(
-                "Message",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 5),
-              SizedBox(
-                height: 120,
-                child: Text_Field(
-                  hintText: 'Enter your message',
-                  controller: messageController,
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              Center(
-                child: ElevatedButton(
-                  onPressed: sendFeedback,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
-                      vertical: 15,
+                        child: const Text("Send", style: TextStyle(fontSize: 18, color: Colors.white)),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    "Send",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
-                  ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
+        ],
+      ),bottomNavigationBar: BottomAppBar(
+      color: Colors.black87,
+      shape: const CircularNotchedRectangle(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            buildNavButton(
+              context,
+              "assets/images/home.png",
+              const HomePage(),
+              widget.runtimeType,
+            ),
+            buildNavButton(
+              context,
+              "assets/images/about.png",
+              AboutPage(),
+              widget.runtimeType,
+            ),
+            buildNavButton(
+              context,
+              "assets/images/subscrption.png",
+              const Subscription(),
+              widget.runtimeType,
+            ),
+            buildNavButton(
+              context,
+              "assets/images/contact.png",
+              const ContactPage(),
+              widget.runtimeType,
+            ),
+            if (userToken == null)
+              buildNavButton(
+                context,
+                "assets/images/login.png",
+                const LoginPage(),
+                widget.runtimeType,
+              ),
+          ],
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.black87,
-        shape: const CircularNotchedRectangle(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              buildNavButton(
-                context,
-                "assets/images/home.png",
-                const HomePage(),
-                widget.runtimeType,
-              ),
-              buildNavButton(
-                context,
-                "assets/images/about.png",
-                AboutPage(),
-                widget.runtimeType,
-              ),
-              buildNavButton(
-                context,
-                "assets/images/subscrption.png",
-                const Subscription(),
-                widget.runtimeType,
-              ),
-              buildNavButton(
-                context,
-                "assets/images/contact.png",
-                const ContactPage(),
-                widget.runtimeType,
-              ),
-              if (userToken == null)
-                buildNavButton(
-                  context,
-                  "assets/images/login.png",
-                  const LoginPage(),
-                  widget.runtimeType,
-                ),
-            ],
-          ),
-        ),
-      ),
+    ),
     );
   }
 }

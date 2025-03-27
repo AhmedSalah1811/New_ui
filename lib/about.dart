@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 import 'build_nav_button.dart';
 import 'home_page.dart';
 import 'login.dart';
-
 import 'profile.dart';
 import 'subscription.dart';
 import 'contact.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({Key? key}) : super(key: key);
@@ -18,11 +17,18 @@ class AboutPage extends StatefulWidget {
 
 class _AboutPageState extends State<AboutPage> {
   String? userToken;
+  late WebViewController webViewController;
 
   @override
   void initState() {
     super.initState();
     _checkUserToken();
+
+    webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setUserAgent(
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+      ..loadRequest(Uri.parse("http://192.168.1.6:5173/"));
   }
 
   Future<void> _checkUserToken() async {
@@ -34,30 +40,95 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(backgroundColor: Colors.black87,iconTheme: IconThemeData.fallback().copyWith(color: Colors.black87),
-      centerTitle: true,
-      title: const Text(
-        'Features',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.black87,
+        centerTitle: true,
+        title: const Text(
+          'Features',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),actions: [
-        IconButton(color: Colors.white,
-          icon: const Icon(Icons.person),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ProfilePage(),
+        actions: [
+          IconButton(
+            color: Colors.white,
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfilePage(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: WebViewWidget(controller: webViewController),
+          ),
+          Positioned.fill(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      height: 280,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 250,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            FeaturesBox(
+                              title: 'Component Library',
+                              description:
+                              'Access a vast library of pre-built components ready to use in your project.',
+                            ),
+                            FeaturesBox(
+                              title: 'Responsive Design',
+                              description:
+                              'All generated UIs are fully responsive and work perfectly on any device.',
+                            ),
+                            FeaturesBox(
+                              title: 'Theme Customization',
+                              description:
+                              'Customize colors, fonts, and styles to match your brand identity.',
+                            ),
+                            FeaturesBox(
+                              title: 'Export Options',
+                              description:
+                              'Export your UI in multiple formats including Flutter, React, and HTML.',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            );
-          },
-        ),
-      ],
-    ),
-      backgroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.black87,
         shape: const CircularNotchedRectangle(),
@@ -101,60 +172,6 @@ class _AboutPageState extends State<AboutPage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Image.asset(
-                'assets/images/logo.png',
-                height: 280,
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 250,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      FeaturesBox(
-                        title: 'Component Library',
-                        description:
-                            'Access a vast library of pre-built components ready to use in your project.',
-                      ),
-                      FeaturesBox(
-                        title: 'Responsive Design',
-                        description:
-                            'All generated UIs are fully responsive and work perfectly on any device.',
-                      ),
-                      FeaturesBox(
-                        title: 'Theme Customization',
-                        description:
-                            'Customize colors, fonts, and styles to match your brand identity.',
-                      ),
-                      FeaturesBox(
-                        title: 'Export Options',
-                        description:
-                            'Export your UI in multiple formats including Flutter, React, and HTML.',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -164,7 +181,7 @@ class FeaturesBox extends StatelessWidget {
   final String description;
 
   const FeaturesBox({Key? key, required this.title, required this.description})
-    : super(key: key);
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

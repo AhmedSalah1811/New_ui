@@ -8,6 +8,7 @@ import 'contact.dart';
 import 'home_page.dart';
 import 'login.dart';
 import 'profile.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class Subscription extends StatefulWidget {
   const Subscription({super.key});
@@ -18,11 +19,18 @@ class Subscription extends StatefulWidget {
 
 class _SubscriptionState extends State<Subscription> {
   String? userToken;
+  late WebViewController webViewController;
 
   @override
   void initState() {
     super.initState();
     _checkUserToken();
+
+    webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setUserAgent(
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
+      ..loadRequest(Uri.parse("http://192.168.1.6:5173/"));
   }
 
   Future<void> _checkUserToken() async {
@@ -35,68 +43,81 @@ class _SubscriptionState extends State<Subscription> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true,iconTheme: IconThemeData.fallback().copyWith(color: Colors.black87),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        centerTitle: true,
         backgroundColor: Colors.black87,
         title: const Text(
           'Pricing',
           style: TextStyle(color: Colors.white, fontSize: 22),
-        ),actions: [
-        IconButton(color: Colors.white,
-          icon: const Icon(Icons.person),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ProfilePage(),
-              ),
-            );
-          },
         ),
-      ],
-
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(color: Colors.white),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              PriceDetails(
-                title: 'Starter',
-                price: '29',
-                duration: '/month',
-                features: [
-                  'Up to 5 projects',
-                  'Basic Components',
-                  'Email Support',
-                ],
-              ),
-              PriceDetails(
-                title: 'Pro',
-                price: '59',
-                duration: '/month',
-                features: [
-                  'Up to 10 projects',
-                  'Advanced Components',
-                  'Priority Support',
-                  'Collaboration Tools',
-                ],
-              ),
-              PriceDetails(
-                title: 'Enterprise',
-                price: '99',
-                duration: '/month',
-                features: [
-                  'Unlimited projects',
-                  'All Components',
-                  'Dedicated Support',
-                  'Custom Solutions',
-                ],
-              ),
-            ],
+        actions: [
+          IconButton(
+            color: Colors.white,
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProfilePage(),
+                ),
+              );
+            },
           ),
-        ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: WebViewWidget(controller: webViewController),
+          ),
+          Positioned.fill(
+            child: SingleChildScrollView(
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(color: Colors.transparent),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    PriceDetails(
+                      title: 'Starter',
+                      price: '29',
+                      duration: '/month',
+                      features: [
+                        'Up to 5 projects',
+                        'Basic Components',
+                        'Email Support',
+                        'Tools',
+                      ],
+                    ),
+                    PriceDetails(
+                      title: 'Pro',
+                      price: '59',
+                      duration: '/month',
+                      features: [
+                        'Up to 10 projects',
+                        'Advanced Components',
+                        'Priority Support',
+                        'Collaboration Tools',
+                      ],
+                    ),
+                    PriceDetails(
+                      title: 'Enterprise',
+                      price: '99',
+                      duration: '/month',
+                      features: [
+                        'Unlimited projects',
+                        'All Components',
+                        'Dedicated Support',
+                        'Custom Solutions',
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.black87,
@@ -186,41 +207,45 @@ class PriceDetails extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       height: 300,
       width: double.infinity,
-      decoration: BoxDecoration(
+      decoration:BoxDecoration(
         color: Colors.black12,
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.white70,
+          width: 2,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(color: Colors.black, fontSize: 18),
+            style: const TextStyle(color: Colors.white, fontSize: 18),
           ),
           const SizedBox(height: 20),
           Row(
             children: [
               Text(
                 price,
-                style: const TextStyle(color: Colors.black, fontSize: 22),
+                style: const TextStyle(color: Colors.white, fontSize: 22),
               ),
               Text(
                 duration,
-                style: const TextStyle(color: Colors.black, fontSize: 12),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
             ],
           ),
           const SizedBox(height: 20),
           ...features.map(
-            (feature) => Padding(
+                (feature) => Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Text(
                 '* $feature',
-                style: const TextStyle(color: Colors.black),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
           SizedBox(
             width: 280,
             child: ElevatedButton(

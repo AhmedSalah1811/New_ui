@@ -130,9 +130,9 @@ class _ChatBotState extends State<ChatBot> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text("UI Evolution Chat"),
-        backgroundColor: Colors.blue,
+      appBar: AppBar(centerTitle: true,iconTheme: IconThemeData.fallback().copyWith(color: Colors.white),
+        title: const Text("UI Evolution Chat",style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black87,
       ),
       body: Column(
         children: [
